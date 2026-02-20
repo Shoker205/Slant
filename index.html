@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slant | Chat Off The Grid</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #000000;
+            --accent: #ffffff;
+            --border: #222222;
+            --text-dim: #888888;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent; /* Убирает синее выделение при тапе на мобильных */
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            text-transform: uppercase;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Эффект сетки */
+        .dot-bg {
+            background-image: radial-gradient(#222 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Кастомный курсор (только для десктопа) */
+        #cursor {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+            display: none;
+        }
+        @media (pointer: fine) { #cursor { display: block; } }
+
+        /* Анимации появления */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Тактильная карточка с 3D эффектом */
+        .slant-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            perspective: 1000px;
+            touch-action: manipulation;
+        }
+
+        .slant-card:active {
+            transform: scale(0.97); /* Эффект нажатия */
+            border-color: #666;
+        }
+
+        @media (min-width: 768px) {
+            .slant-card:hover {
+                border-color: #444;
+                box-shadow: 0 10px 30px rgba(255,255,255,0.05);
+            }
+        }
+
+        /* Бегущая строка */
+        .marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 0;
+            background: #050505;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+        }
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50%, 0); }
+        }
+
+        /* Кнопка Telegram */
+        .tg-fab {
+            background: white;
+            color: black;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .tg-fab:active {
+            transform: scale(0.9);
+        }
+
+        /* Глитч для заголовков */
+        .glitch-text {
+            position: relative;
+        }
+        .glitch-text:hover::before {
+            content: attr(data-text);
+            position: absolute;
+            left: -2px;
+            text-shadow: 1px 0 red;
+            top: 0;
+            overflow: hidden;
+            clip: rect(0, 900px, 0, 0);
+            animation: noise-anim 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes noise-anim {
+            0% { clip: rect(10px, 9999px, 20px, 0); }
+            100% { clip: rect(40px, 9999px, 60px, 0); }
+        }
+    </style>
+</head>
+<body class="dot-bg">
+
+    <div id="cursor"></div>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full z-50 px-4 md:px-10 py-6 flex justify-between items-center backdrop-blur-sm bg-black/10">
+        <div class="mono text-[10px] md:text-sm tracking-tighter border-l-2 border-white pl-3">
+            SLANT // CONCEPT
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="w-2 h-2 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]"></span>
+            <span class="mono text-[9px] uppercase opacity-60">Architecting Freedom</span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center px-6 md:px-20 relative">
+        <div class="reveal">
+            <div class="mono text-xs mb-4 opacity-40">[ SESSION_001 ]</div>
+            <h1 class="text-[14vw] md:text-[10vw] font-bold leading-[0.85] mb-8 tracking-tighter">
+                CHAT OFF<br>
+                <span class="opacity-20 italic">THE GRID.</span>
+            </h1>
+            <p class="mono text-sm md:text-lg max-w-xl text-dim mb-12 leading-relaxed">
+                Slant — это манифест цифровой суверенности. Автономная сеть, где вы владеете своими данными, ключами и пространством.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#features" class="bg-white text-black px-10 py-5 rounded-full mono text-xs font-bold text-center hover:bg-gray-200 transition active:scale-95">
+                    ПРОТОКОЛЫ ЗАЩИТЫ
+                </a>
+                <a href="https://t.me/slant_mes" target="_blank" class="border border-white/20 px-10 py-5 rounded-full mono text-xs text-center hover:bg-white hover:text-black transition active:scale-95">
+                    Телеграм канал
+                </a>
+            </div>
+        </div>
+        
+        <!-- Декоративный элемент -->
+        <div class="absolute bottom-10 right-10 mono text-[10px] opacity-20 hidden md:block">
+            LATENCY: 0MS<br>ENCRYPTION: AES-256-GCM<br>STATUS: UNTRACEABLE
+        </div>
+    </section>
+
+    <!-- Marquee Section -->
+    <div class="marquee">
+        <div class="marquee-content">
+            &nbsp;• No Servers • Total Privacy • P2P Mesh Network • No Phone Number Required • Zero Knowledge • Stealth Mode • No Servers • Total Privacy • P2P Mesh Network • No Phone Number Required • Zero Knowledge • Stealth Mode
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <section id="features" class="py-24 px-6 md:px-20">
+        <div class="mb-16">
+            <h2 class="text-4xl md:text-6xl mb-4">Архитектура</h2>
+            <div class="w-20 h-1 bg-white"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Card 1 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-calculator text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#01</span>
+                </div>
+                <h3 class="text-xl mb-3">Calculator Vault</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Полная мимикрия под системный калькулятор. Вход в мессенджер скрыт за математическим уравнением.
+                </p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-ghost text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#02</span>
+                </div>
+                <h3 class="text-xl mb-3">Stealth Mode</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Размытие контента в списке запущенных приложений и автоматический запрет скриншотов.
+                </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-share-nodes text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#03</span>
+                </div>
+                <h3 class="text-xl mb-3">Mesh Network</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Передача сообщений через Bluetooth/Wi-Fi Direct в условиях полного отсутствия глобальной сети.
+                </p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-key text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#04</span>
+                </div>
+                <h3 class="text-xl mb-3">Crypto ID</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Ваша личность — это пара ключей. Никаких SMS, никакой почты. Только математика.
+                </p>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-box-archive text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#05</span>
+                </div>
+                <h3 class="text-xl mb-3">SQLCipher Cache</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Медиафайлы хранятся в зашифрованной базе внутри приложения. Никаких следов в галерее.
+                </p>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="slant-card p-8 reveal">
+                <div class="flex justify-between items-start mb-12">
+                    <i class="fa-solid fa-shield-virus text-2xl"></i>
+                    <span class="mono text-[10px] opacity-30">#06</span>
+                </div>
+                <h3 class="text-xl mb-3">Panic PIN</h3>
+                <p class="text-dim text-xs leading-loose">
+                    Критический код доступа, мгновенно уничтожающий все данные при угрозе физического изъятия.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Status -->
+    <section class="py-24 px-6 md:px-20 bg-white text-black">
+        <div class="reveal max-w-4xl">
+            <h2 class="text-4xl md:text-7xl font-bold mb-8 tracking-tighter italic">КОНЦЕПЦИЯ НЕУЯЗВИМОСТИ.</h2>
+            <p class="text-lg md:text-2xl mb-12 leading-tight font-medium">
+                Проект находится на стадии  концептуализации проекта, но совсем скоро начнём разработку. Мы верим, что приватность — это не привилегия, а базовое право человека.
+            </p>
+            <div class="flex flex-col gap-4">
+                <a href="https://t.me/slant_mes" target="_blank" class="tg-fab inline-flex items-center justify-center gap-3 bg-black text-white px-8 py-5 rounded-full mono text-sm font-bold w-full sm:w-max">
+                    <i class="fa-brands fa-telegram text-xl"></i>
+                    ПОДПИСАТЬСЯ НА НОВОСТИ
+                </a>
+                <p class="mono text-[10px] opacity-50 uppercase mt-4">Development phase: Alpha 0.1 / No trackers included.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-6 md:px-20 border-t border-white/5 bg-black">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="text-center md:text-left">
+                <div class="text-2xl font-bold tracking-widest mb-1">SLANT</div>
+                <div class="mono text-[9px] opacity-30">ENCRYPTED // ANONYMOUS // AUTONOMOUS</div>
+            </div>
+            
+            <nav class="flex gap-6 mono text-[10px] uppercase tracking-widest opacity-60">
+                <a href="https://t.me/slant_mes" class="hover:text-white transition">Telegram</a>
+                <a href="#" class="hover:text-white transition">Github</a>
+                <a href="#" class="hover:text-white transition">Privacy</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Fixed Mobile Button (Bottom) -->
+    <div class="fixed bottom-6 left-0 w-full px-6 z-40 md:hidden">
+        <a href="https://t.me/slant_mes" target="_blank" class="flex items-center justify-center gap-3 bg-white text-black py-4 rounded-xl font-bold shadow-2xl active:scale-95 transition-transform">
+            <i class="fa-brands fa-telegram"></i>
+            <span class="text-xs uppercase tracking-widest mono">Подписаться на канал</span>
+        </a>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Custom Cursor Logic
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // Hover effect for cursor
+        const interactables = document.querySelectorAll('a, button, .slant-card');
+        interactables.forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.style.transform = 'scale(2.5)');
+            el.addEventListener('mouseleave', () => cursor.style.transform = 'scale(1)');
+        });
+
+        // Scroll Reveal
+        function reveal() {
+            const reveals = document.querySelectorAll(".reveal");
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < windowHeight - 50) {
+                    el.classList.add("active");
+                }
+            });
+        }
+        window.addEventListener("scroll", reveal);
+        window.addEventListener("load", reveal);
+
+        // 3D Card Effect for Desktop
+        if (window.innerWidth > 1024) {
+            const cards = document.querySelectorAll('.slant-card');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = (y - centerY) / 10;
+                    const rotateY = (centerX - x) / 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+
