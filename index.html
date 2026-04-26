@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Испытание Мастера: Happy Core</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mc-bg-sky: #7BA8FF;
+            --mc-bg-dirt: #866043;
+            --mc-bg-grass: #59982F;
+            --mc-panel: #c6c6c6;
+            --mc-border-light: #ffffff;
+            --mc-border-dark: #555555;
+            --mc-border-black: #000000;
+            --xp-bar-bg: #222222;
+            --xp-bar-fill: #80ff20;
+            --accent-gold: #ffff55;
+            --error-red: #ff5555;
+            --success-green: #55ff55;
+            --mc-text-shadow: 2px 2px 0px #3f3f3f;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100dvh;
+            background: linear-gradient(to bottom, var(--mc-bg-sky) 0%, var(--mc-bg-sky) 65%, var(--mc-bg-grass) 65%, var(--mc-bg-grass) 68%, var(--mc-bg-dirt) 68%, var(--mc-bg-dirt) 100%);
+            font-family: 'VT323', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        #clouds-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 65%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: #ffffff;
+            width: 120px; height: 40px;
+            opacity: 0.9;
+            animation: moveClouds linear infinite;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: #ffffff;
+        }
+        
+        .cloud::before { top: -20px; left: 20px; width: 80px; height: 20px; }
+        .cloud::after { top: -40px; left: 40px; width: 40px; height: 20px; }
+
+        @keyframes moveClouds {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-200px); }
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 10;
+            width: 95%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .logo-container {
+            text-align: center;
+            line-height: 1.4;
+            text-shadow: 3px 3px 0 #3f3f3f, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+        }
+
+        .logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.2rem, 4vw, 2.5rem);
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .sub-logo {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.7rem, 2vw, 1.2rem);
+            color: var(--success-green);
+            margin-top: 5px;
+        }
+
+        .main-card {
+            background: var(--mc-panel);
+            border: 4px solid var(--mc-border-black);
+            box-shadow: inset -4px -4px 0 var(--mc-border-dark), 
+                        inset 4px 4px 0 var(--mc-border-light),
+                        0 15px 40px rgba(0,0,0,0.6);
+            padding: clamp(12px, 3vw, 25px);
+            position: relative;
+        }
+
+        .header-stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 4px solid var(--mc-border-dark);
+            box-shadow: 0 4px 0 var(--mc-border-light);
+        }
+
+        .xp-container {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .xp-label {
+            color: #3f3f3f;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.6rem, 2vw, 0.9rem);
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        .xp-bar-outer {
+            height: 18px;
+            background: var(--xp-bar-bg);
+            border: 3px solid var(--mc-border-black);
+            position: relative;
+        }
+
+        .xp-bar-inner {
+            height: 100%;
+            background: var(--xp-bar-fill);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 3px solid #b3ff70;
+            border-bottom: 3px solid #4ca600;
+        }
+
+        .lives-box {
+            display: flex;
+            gap: 5px;
+        }
+
+        .heart {
+            width: clamp(24px, 6vw, 32px);
+            height: clamp(24px, 6vw, 32px);
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 9"><path fill="%23000000" d="M1 1h2v1h3V1h2v2h1v3H8v1H7v1H6v1H3V8H2V7H1V6H0V3h1V1z"/><path fill="%23ff3333" d="M1 2h2v1h3V2h2v3H7v1H6v1H3V6H2V5H1V2z"/><path fill="%23ffffff" d="M1 2h1v1H1z"/></svg>') no-repeat center/contain;
+            transition: all 0.3s ease;
+        }
+
+        .heart.lost {
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 9"><path fill="%23000000" d="M1 1h2v1h3V1h2v2h1v3H8v1H7v1H6v1H3V8H2V7H1V6H0V3h1V1z"/><path fill="%23555555" d="M1 2h2v1h3V2h2v3H7v1H6v1H3V6H2V5H1V2z"/></svg>') no-repeat center/contain;
+            transform: scale(0.8);
+        }
+
+        .question-area {
+            background: #111111;
+            border: 4px solid var(--mc-border-black);
+            box-shadow: inset -3px -3px 0 #333, inset 3px 3px 0 #000;
+            padding: 15px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: clamp(1.6rem, 4.5vw, 2.2rem);
+            margin-bottom: 20px;
+            line-height: 1.3;
+            color: #ffffff;
+            text-shadow: 2px 2px 0 #000;
+            white-space: pre-wrap; 
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            width: 100%;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            .answers-grid { grid-template-columns: 1fr; }
+            .header-stats { flex-direction: column; text-align: center; }
+            .xp-container { width: 100%; }
+            .lives-box { justify-content: center; width: 100%; margin-top: 10px; }
+        }
+
+        .mc-button {
+            position: relative;
+            background: var(--mc-panel);
+            border: 3px solid #000;
+            color: #ffffff;
+            font-family: 'VT323', monospace;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            padding: 15px 10px;
+            cursor: pointer;
+            text-shadow: var(--mc-text-shadow);
+            box-shadow: inset -4px -4px 0 var(--mc-border-dark), inset 4px 4px 0 var(--mc-border-light);
+            transition: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        .mc-button:hover:not(:disabled) {
+            background: #99ccff;
+            box-shadow: inset -4px -4px 0 #5588cc, inset 4px 4px 0 #cceeff;
+        }
+
+        .mc-button:active:not(:disabled) {
+            box-shadow: inset 4px 4px 0 var(--mc-border-dark), inset -4px -4px 0 var(--mc-border-light);
+            padding: 17px 8px 13px 12px; 
+        }
+
+        .mc-button.correct {
+            background: #55ff55;
+            color: #000;
+            text-shadow: none;
+            box-shadow: inset -4px -4px 0 #22aa22, inset 4px 4px 0 #aaffaa;
+        }
+
+        .mc-button.wrong {
+            background: #ff5555;
+            color: #000;
+            text-shadow: none;
+            box-shadow: inset -4px -4px 0 #aa2222, inset 4px 4px 0 #ffaaaa;
+        }
+
+        .mc-button:disabled {
+            cursor: default;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .result-title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 4px 4px 0 #000;
+        }
+
+        .result-text {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 600px;
+            color: #dddddd;
+        }
+
+        .season-info {
+            background: rgba(255, 255, 85, 0.1);
+            border: 2px dashed var(--accent-gold);
+            padding: 15px;
+            margin-bottom: 25px;
+            color: var(--accent-gold);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .btn-restart {
+            padding: 15px 30px;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            background: var(--mc-panel);
+            color: #ffffff;
+            border: 4px solid #000;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            box-shadow: inset -4px -4px 0 var(--mc-border-dark), inset 4px 4px 0 var(--mc-border-light);
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .btn-restart:hover {
+            background: #7BA8FF;
+            box-shadow: inset -4px -4px 0 #3a68bf, inset 4px 4px 0 #aaccff;
+        }
+        
+        .btn-restart:active {
+            box-shadow: inset 4px 4px 0 var(--mc-border-dark), inset -4px -4px 0 var(--mc-border-light);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        .shake { animation: shake 0.3s ease-in-out 2; }
+
+    </style>
+</head>
+<body>
+
+    <div id="clouds-container"></div>
+
+    <div class="wrapper" id="game-wrapper" style="display: none;">
+        <div class="logo-container">
+            <h1 class="logo">Испытание Мастера</h1>
+            <div class="sub-logo">Сервер Happy Core</div>
+        </div>
+
+        <div class="main-card" id="game-card">
+            <div class="header-stats">
+                <div class="xp-container">
+                    <span class="xp-label">Уровень: <span id="xp-counter" style="color: var(--success-green);">0</span>/10</span>
+                    <div class="xp-bar-outer">
+                        <div class="xp-bar-inner" id="xp-fill"></div>
+                    </div>
+                </div>
+                <div class="lives-box" id="lives-box">
+                    <div class="heart"></div>
+                    <div class="heart"></div>
+                    <div class="heart"></div>
+                </div>
+            </div>
+
+            <div class="question-area" id="question-text">Загрузка мира...</div>
+
+            <div class="answers-grid" id="answers-grid"></div>
+        </div>
+    </div>
+
+    <div class="overlay visible" id="start-screen">
+        <h2 class="result-title" style="color: var(--accent-gold);">HAPPY CORE</h2>
+        <p class="result-text">Проверь свои знания механик Minecraft перед входом на сервер. Включи звук для полного погружения!</p>
+        <button class="btn-restart" onclick="initGame()">ИГРАТЬ</button>
+    </div>
+
+    <div class="overlay" id="win-screen">
+        <h2 class="result-title" style="color: var(--success-green);">МИР ПОКОРЕН!</h2>
+        <p class="result-text">Твои знания не имеют границ. Ты готов к новым приключениям!</p>
+        <div class="season-info">
+            ОТКРЫТИЕ НОВОГО СЕЗОНА:<br>
+            01.05.2026 - 16:00 (МСК)
+        </div>
+        <button class="btn-restart" onclick="restartGame()">В ГЛАВНОЕ МЕНЮ</button>
+    </div>
+
+    <div class="overlay" id="lose-screen">
+        <h2 class="result-title" style="color: var(--error-red);">ВЫ ПОГИБЛИ</h2>
+        <p class="result-text">Вы потеряли весь инвентарь и опыт. Попробуйте еще раз.</p>
+        <button class="btn-restart" onclick="restartGame()">ВОЗРОДИТЬСЯ</button>
+    </div>
+
+    <script>
+        const questionsDB = [
+            { t: "Сколько железных слитков нужно для наковальни?", o: ["27", "31", "33", "24"], c: 1 },
+            { t: "Какой моб дропает 'Слезу Гаста'?", o: ["Ифрит", "Ведьма", "Гаст", "Иссушитель"], c: 2 },
+            { t: "С помощью чего можно приручить Оцелота?", o: ["Рыба", "Кость", "Пшеница", "Мясо"], c: 0 },
+            { t: "Максимальный уровень Остроты без команд?", o: ["III", "IV", "V", "VI"], c: 2 },
+            { t: "Минимум обсидиана для портала в Незер?", o: ["10", "12", "14", "8"], c: 0 },
+            { t: "Где спавнятся грибные коровы?", o: ["Болото", "Грибные поля", "Тайга", "Джунгли"], c: 1 },
+            { t: "Какой блок нельзя сдвинуть поршнем?", o: ["Сундук", "Печь", "Обсидиан", "Всё перечисленное"], c: 3 },
+            { t: "Что едят свиньи для размножения?", o: ["Пшеница", "Морковь", "Семена", "Яблоки"], c: 1 },
+            { t: "Сколько пороха нужно для ТНТ?", o: ["4", "5", "3", "2"], c: 1 },
+            { t: "Какая руда самая редкая в обычном мире (до 1.17)?", o: ["Золото", "Изумруд", "Алмаз", "Лазурит"], c: 1 },
+            { t: "Чем добывать паутину быстрее всего?", o: ["Ножницы", "Меч", "Топор", "Кирка"], c: 1 },
+            { t: "Опыт за первое убийство Дракона?", o: ["10 000", "12 000", "15 000", "5 000"], c: 1 },
+            { t: "Что делает зелье взрывным?", o: ["Редстоун", "Светопыль", "Порох", "Сахар"], c: 2 },
+            { t: "Уровень света Светокамня?", o: ["12", "14", "15", "10"], c: 2 },
+            { t: "Кого боятся криперы?", o: ["Волков", "Големов", "Кошек", "Пауков"], c: 2 },
+            { t: "Эффект обычного золотого яблока?", o: ["Регенерация", "Сила", "Огнестойкость", "Скорость"], c: 0 },
+            { t: "Самое долгое топливо в печи?", o: ["Блок угля", "Лава", "Огненный жезл", "Уголь"], c: 1 },
+            { t: "Из чего крафтится поводок?", o: ["Нить и слизь", "Нить и кожа", "Кожа и слизь", "Нить"], c: 0 },
+            { t: "Моб, разрушающий блоки при движении?", o: ["Эндермен", "Разоритель", "Дракон", "Все они"], c: 3 },
+            { t: "Сколько тиков в 1 секунде?", o: ["10", "20", "5", "15"], c: 1 },
+            { t: "Дерево, не имеющее 2х2 версии?", o: ["Ель", "Дуб", "Тропическое", "Береза"], c: 3 },
+            { t: "Что активирует маяк?", o: ["Звезда", "Слиток/Алмаз", "Редстоун", "Опыт"], c: 1 },
+            { t: "Цвет глаз обычного паука?", o: ["Красный", "Черный", "Зеленый", "Белый"], c: 0 },
+            { t: "Здоровье игрока (в очках)?", o: ["10", "20", "15", "30"], c: 1 },
+            { t: "Что падает с черепахи при взрослении?", o: ["Панцирь", "Щиток", "Яйцо", "Ничего"], c: 1 },
+            { t: "Как найти Проклятие утраты?", o: ["Стол чар", "Сундуки/Рыбалка", "Крафт", "У ведьмы"], c: 1 },
+            { t: "Кто накладывает Иссушение?", o: ["Зомби", "Визер-скелет", "Скелет", "Гаст"], c: 1 },
+            { t: "Чем чинить элитры?", o: ["Кожа", "Фантомная мембрана", "Нить", "Железо"], c: 1 },
+            { t: "Как призвать снежного голема?", o: ["Снег + тыква", "Снег + шерсть", "Лед + тыква", "Снег + череп"], c: 0 },
+            { t: "Что полностью убирает урон от падения?", o: ["Сено", "Вода", "Сладкие ягоды", "Все они"], c: 1 },
+            { t: "Крафт незеритового слитка?", o: ["4 скрапа + 4 золота", "8 скрапа", "1 скрап + 8 золота", "4 скрапа + 4 алмаза"], c: 0 },
+            { t: "Где искать Древние обломки?", o: ["Край", "Верхний мир", "Незер", "Шахты"], c: 2 },
+            { t: "Лучшая высота для алмазов (1.18+)?", o: ["Y 11", "Y -59", "Y 0", "Y -15"], c: 1 },
+            { t: "Что делает Шелковое касание?", o: ["Больше лута", "Блок целиком", "Прочность", "Скорость"], c: 1 },
+            { t: "Ингредиент для зелья невидимости?", o: ["Глаз паука", "Приготовленный глаз", "Слеза гаста", "Сгусток магмы"], c: 1 },
+            { t: "Сколько книжных полок для 30 уровня?", o: ["12", "15", "20", "10"], c: 1 },
+            { t: "Кто дропает Тотем бессмертия?", o: ["Поборник", "Вызыватель", "Ведьма", "Разбойник"], c: 1 },
+            { t: "Название измерения с Драконом?", o: ["Пустота", "Край", "Эфир", "Незер"], c: 1 },
+            { t: "Самая питательная еда?", o: ["Мясо", "Торт", "Золотая морковь", "Яблоко"], c: 2 },
+            { t: "Слотов в одиночном сундуке?", o: ["27", "36", "18", "9"], c: 0 },
+            { t: "Кровать в Незере...", o: ["Спит", "Взрывается", "Горит", "Исчезает"], c: 1 },
+            { t: "Какая пластинка сломана?", o: ["Pigstep", "Cat", "11", "13"], c: 2 },
+            { t: "Чем размножать жителей?", o: ["Изумруды", "Еда (хлеб и др.)", "Кровати", "Золото"], c: 1 },
+            { t: "Кто может носить броню?", o: ["Зомби", "Скелет", "Оба", "Никто"], c: 2 },
+            { t: "Где живет Варден?", o: ["Крепость", "Древний город", "Ад", "Болото"], c: 1 },
+            { t: "Урон алмазного меча (Java)?", o: ["6", "8", "7", "5"], c: 2 },
+            { t: "Что нельзя выловить удочкой?", o: ["Бирка", "Седло", "Лук", "Алмаз"], c: 3 },
+            { t: "Состав Ока Края?", o: ["Жемчуг + Порошок", "Жемчуг + Слеза", "Жемчуг + Огненный шар", "Жемчуг + Пыль"], c: 0 },
+            { t: "Голова железного голема?", o: ["Тыква", "Голова игрока", "Железный блок", "Светящаяся тыква"], c: 0 },
+            { t: "Нейтральный моб при свете дня?", o: ["Зомби", "Паук", "Крипер", "Скелет"], c: 1 }
+        ];
+
+        let state = {
+            score: 0,
+            lives: 3,
+            pool: [],
+            isTyping: false
+        };
+
+        const el = {
+            question: document.getElementById('question-text'),
+            grid: document.getElementById('answers-grid'),
+            xpFill: document.getElementById('xp-fill'),
+            xpText: document.getElementById('xp-counter'),
+            hearts: document.getElementById('lives-box').children,
+            card: document.getElementById('game-card'),
+            win: document.getElementById('win-screen'),
+            lose: document.getElementById('lose-screen'),
+            start: document.getElementById('start-screen'),
+            wrapper: document.getElementById('game-wrapper')
+        };
+
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(frequency, type, duration, vol = 0.1) {
+            if (!audioCtx) return;
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+            gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        function playTypingSound() {
+            const freq = Math.random() > 0.5 ? 800 : 900;
+            playTone(freq, 'square', 0.03, 0.015);
+        }
+
+        function playCorrectSound() {
+            playTone(523.25, 'square', 0.1, 0.05); 
+            setTimeout(() => playTone(659.25, 'square', 0.1, 0.05), 100); 
+            setTimeout(() => playTone(783.99, 'square', 0.1, 0.05), 200); 
+            setTimeout(() => playTone(1046.50, 'square', 0.3, 0.05), 300); 
+        }
+
+        function playWrongSound() {
+            playTone(150, 'sawtooth', 0.2, 0.08);
+            setTimeout(() => playTone(100, 'sawtooth', 0.3, 0.08), 150);
+        }
+
+        function playWinSound() {
+            const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50, 1318.51];
+            notes.forEach((note, i) => {
+                setTimeout(() => playTone(note, 'square', 0.6, 0.06), i * 150);
+            });
+            setTimeout(() => {
+                playTone(1046.50, 'square', 1.5, 0.05);
+                playTone(1318.51, 'square', 1.5, 0.05);
+                playTone(1567.98, 'square', 1.5, 0.05);
+            }, notes.length * 150);
+        }
+
+        function initClouds() {
+            const container = document.getElementById('clouds-container');
+            for(let i=0; i<8; i++) {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.top = (Math.random() * 80) + '%';
+                cloud.style.animationDuration = (Math.random() * 30 + 20) + 's';
+                cloud.style.animationDelay = '-' + (Math.random() * 30) + 's';
+                cloud.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+                container.appendChild(cloud);
+            }
+        }
+
+        function initGame() {
+            initAudio();
+            el.start.classList.remove('visible');
+            el.wrapper.style.display = 'flex';
+            startGame();
+        }
+
+        function startGame() {
+            state.score = 0;
+            state.lives = 3;
+            state.pool = [...questionsDB];
+            updateStats();
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (state.score >= 10) {
+                showEnd('win');
+                return;
+            }
+            if (state.lives <= 0) {
+                showEnd('lose');
+                return;
+            }
+
+            const idx = Math.floor(Math.random() * state.pool.length);
+            const q = state.pool.splice(idx, 1)[0];
+            renderQuestion(q);
+        }
+
+        function renderQuestion(q) {
+            state.isTyping = true;
+            el.grid.innerHTML = '';
+            el.question.textContent = ''; 
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                const char = q.t[i];
+                el.question.textContent += char;
+                
+                if (char !== ' ' && i % 2 === 0) {
+                    playTypingSound(); 
+                }
+                
+                i++;
+                if (i >= q.t.length) {
+                    clearInterval(interval);
+                    state.isTyping = false;
+                    q.o.forEach((opt, index) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'mc-button';
+                        btn.textContent = opt;
+                        btn.onclick = () => checkAnswer(index, q.c);
+                        el.grid.appendChild(btn);
+                    });
+                }
+            }, 30); 
+        }
+
+        function checkAnswer(selected, correct) {
+            if (state.isTyping) return;
+            const buttons = el.grid.querySelectorAll('.mc-button');
+            buttons.forEach(b => b.disabled = true);
+
+            if (selected === correct) {
+                playCorrectSound();
+                buttons[selected].classList.add('correct');
+                state.score++;
+                setTimeout(() => {
+                    updateStats();
+                    nextQuestion();
+                }, 1200);
+            } else {
+                playWrongSound();
+                buttons[selected].classList.add('wrong');
+                buttons[correct].classList.add('correct');
+                state.lives--;
+                el.card.classList.add('shake');
+                setTimeout(() => el.card.classList.remove('shake'), 400);
+                setTimeout(() => {
+                    updateStats();
+                    nextQuestion();
+                }, 1800);
+            }
+        }
+
+        function updateStats() {
+            el.xpFill.style.width = (state.score * 10) + '%';
+            el.xpText.textContent = state.score;
+            
+            for(let i=0; i<3; i++) {
+                if (i < state.lives) el.hearts[i].classList.remove('lost');
+                else el.hearts[i].classList.add('lost');
+            }
+        }
+
+        function showEnd(type) {
+            if (type === 'win') {
+                playWinSound();
+                el.win.classList.add('visible');
+            } else {
+                playWrongSound();
+                el.lose.classList.add('visible');
+            }
+        }
+
+        function restartGame() {
+            el.win.classList.remove('visible');
+            el.lose.classList.remove('visible');
+            el.start.classList.add('visible');
+            el.wrapper.style.display = 'none';
+        }
+
+        initClouds();
+    </script>
+</body>
+</html>
