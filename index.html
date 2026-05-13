@@ -576,13 +576,15 @@
                 if (i >= q.t.length) {
                     clearInterval(interval);
                     state.isTyping = false;
+                    const fragment = document.createDocumentFragment();
                     q.o.forEach((opt, index) => {
                         const btn = document.createElement('button');
                         btn.className = 'mc-button';
                         btn.textContent = opt;
                         btn.onclick = () => checkAnswer(index, q.c);
-                        el.grid.appendChild(btn);
+                        fragment.appendChild(btn);
                     });
+                    el.grid.appendChild(fragment);
                 }
             }, 30); 
         }
