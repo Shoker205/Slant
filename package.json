@@ -1,0 +1,27 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Test domen name",
+  "main": "test_checkAnswer.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node test_checkAnswer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shoker205/Slant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Shoker205/Slant/issues"
+  },
+  "homepage": "https://github.com/Shoker205/Slant#readme",
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}
