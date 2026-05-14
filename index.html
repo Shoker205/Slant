@@ -592,14 +592,13 @@
             const buttons = el.grid.querySelectorAll('.mc-button');
             buttons.forEach(b => b.disabled = true);
 
+            let delay;
+
             if (selected === correct) {
                 playCorrectSound();
                 buttons[selected].classList.add('correct');
                 state.score++;
-                setTimeout(() => {
-                    updateStats();
-                    nextQuestion();
-                }, 1200);
+                delay = 1200;
             } else {
                 playWrongSound();
                 buttons[selected].classList.add('wrong');
@@ -607,11 +606,13 @@
                 state.lives--;
                 el.card.classList.add('shake');
                 setTimeout(() => el.card.classList.remove('shake'), 400);
-                setTimeout(() => {
-                    updateStats();
-                    nextQuestion();
-                }, 1800);
+                delay = 1800;
             }
+
+            setTimeout(() => {
+                updateStats();
+                nextQuestion();
+            }, delay);
         }
 
         function updateStats() {
