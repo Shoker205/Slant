@@ -385,6 +385,10 @@
     </div>
 
     <script>
+        function secureMathRandom() {
+            return window.crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1);
+        }
+
         const questionsDB = [
             { t: "Сколько железных слитков нужно для наковальни?", o: ["27", "31", "33", "24"], c: 1 },
             { t: "Какой моб дропает 'Слезу Гаста'?", o: ["Ифрит", "Ведьма", "Гаст", "Иссушитель"], c: 2 },
@@ -487,7 +491,7 @@
         }
 
         function playTypingSound() {
-            const freq = Math.random() > 0.5 ? 800 : 900;
+            const freq = secureMathRandom() > 0.5 ? 800 : 900;
             playTone(freq, 'square', 0.03, 0.015);
         }
 
@@ -520,10 +524,10 @@
             for(let i=0; i<8; i++) {
                 const cloud = document.createElement('div');
                 cloud.className = 'cloud';
-                cloud.style.top = (Math.random() * 80) + '%';
-                cloud.style.animationDuration = (Math.random() * 30 + 20) + 's';
-                cloud.style.animationDelay = '-' + (Math.random() * 30) + 's';
-                cloud.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
+                cloud.style.top = (secureMathRandom() * 80) + '%';
+                cloud.style.animationDuration = (secureMathRandom() * 30 + 20) + 's';
+                cloud.style.animationDelay = '-' + (secureMathRandom() * 30) + 's';
+                cloud.style.transform = `scale(${secureMathRandom() * 1.5 + 0.5})`;
                 container.appendChild(cloud);
             }
         }
@@ -553,7 +557,7 @@
                 return;
             }
 
-            const idx = Math.floor(Math.random() * state.pool.length);
+            const idx = Math.floor(secureMathRandom() * state.pool.length);
             const q = state.pool.splice(idx, 1)[0];
             renderQuestion(q);
         }
