@@ -517,6 +517,7 @@
 
         function initClouds() {
             const container = document.getElementById('clouds-container');
+            const fragment = document.createDocumentFragment();
             for(let i=0; i<8; i++) {
                 const cloud = document.createElement('div');
                 cloud.className = 'cloud';
@@ -524,8 +525,9 @@
                 cloud.style.animationDuration = (Math.random() * 30 + 20) + 's';
                 cloud.style.animationDelay = '-' + (Math.random() * 30) + 's';
                 cloud.style.transform = `scale(${Math.random() * 1.5 + 0.5})`;
-                container.appendChild(cloud);
+                fragment.appendChild(cloud);
             }
+            container.appendChild(fragment);
         }
 
         function initGame() {
