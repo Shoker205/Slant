@@ -442,7 +442,8 @@
             score: 0,
             lives: 3,
             pool: [],
-            isTyping: false
+            isTyping: false,
+            currentButtons: []
         };
 
         const el = {
@@ -562,6 +563,7 @@
             state.isTyping = true;
             el.grid.innerHTML = '';
             el.question.textContent = ''; 
+            state.currentButtons = [];
             
             let i = 0;
             const interval = setInterval(() => {
@@ -582,6 +584,7 @@
                         btn.textContent = opt;
                         btn.onclick = () => checkAnswer(index, q.c);
                         el.grid.appendChild(btn);
+                        state.currentButtons.push(btn);
                     });
                 }
             }, 30); 
@@ -589,7 +592,7 @@
 
         function checkAnswer(selected, correct) {
             if (state.isTyping) return;
-            const buttons = el.grid.querySelectorAll('.mc-button');
+            const buttons = state.currentButtons;
             buttons.forEach(b => b.disabled = true);
 
             if (selected === correct) {
